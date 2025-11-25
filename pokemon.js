@@ -40,7 +40,10 @@ async function getRandomPokemon() {
         if (sprite) {
             return {
                 name: capitalize(data.name),
-                sprite: sprite
+                sprite: sprite,
+                types: data.types.map(t => capitalize(t.type.name)),
+                height: data.height, // in decimeters
+                weight: data.weight  // in hectograms
             };
         }
     }
@@ -54,6 +57,25 @@ async function initGame() {
     updateScore();
     await preloadPokemonNames();
     loadNewPokemon();
+}
+
+//-----------------------------------------------------
+// REFERENCE BANK DISCRIPTIONS (Hints)
+//-----------------------------------------------------
+function addReferenceEntry(pokemon) {
+    const entry = document.createElement("div");
+    const heightMeters = (pokemon.height / 10).toFixed(1); 
+    const weightKg = pokemon.weight / 10;
+    const weightLbs = (weightKg * 2.20462).toFixed(1);
+
+    const typesText = pokemon.types.join(" / ");
+
+    entry.innerHTML = 
+        <strong>${pokemon.name}</strong><br>
+        <small>${typesText}-type · ${heightMeters} m · ${weightLbs} lbs</small>
+    ;
+
+    pokemonList.appendChild(entry);
 }
 
 // ---------------------------------------------
@@ -71,6 +93,8 @@ async function loadNewPokemon() {
 
     currentPokemon = await getRandomPokemon();
     correctAnswer = currentPokemon.name;
+
+    addReferenceEntry(currentPokemon);
 
     pokemonImage.classList.add("silhouette");
     pokemonImage.innerHTML = `<img src="${currentPokemon.sprite}" height="250">`;
