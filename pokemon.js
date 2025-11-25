@@ -14,6 +14,7 @@ let timeLeft = 12;
 const pokemonImage = document.getElementById("pokemonImage");
 const choicesArea = document.getElementById("choicesArea");
 
+
 // ---------------------------------------------
 // PRELOAD ALL POKÉMON NAMES (FAST + RELIABLE)
 // ---------------------------------------------
@@ -25,6 +26,26 @@ async function preloadPokemonNames() {
     allPokemonNames = data.results.map(p => capitalize(p.name));
 }
 
+const pokemonList = document.getElementById("pokemonList");
+
+// ---------------------------------------------
+// ADD ENTRY TO REFERENCE BANK (METERS + POUNDS)
+// ---------------------------------------------
+function addReferenceEntry(pokemon) {
+    const entry = document.createElement("div");
+
+    const heightMeters = (pokemon.height / 10).toFixed(1);
+    const weightKg = pokemon.weight / 10;
+    const weightLbs = (weightKg * 2.20462).toFixed(1);
+
+    const typesText = pokemon.types.join(" / ");
+
+    entry.innerHTML =
+        "<small>" + typesText + "-type · " + heightMeters + " m · " + weightLbs + " lbs</small>";
+
+    pokemonList.appendChild(entry);
+}
+
 // ---------------------------------------------
 // GET RANDOM POKÉMON
 // ---------------------------------------------
@@ -33,6 +54,8 @@ async function getRandomPokemon() {
         const id = Math.floor(Math.random() * 898) + 1;
         const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
         const data = await res.json();
+        
+
 
         const sprite = data.sprites.other["official-artwork"].front_default;
 
@@ -40,7 +63,10 @@ async function getRandomPokemon() {
         if (sprite) {
             return {
                 name: capitalize(data.name),
-                sprite: sprite
+                sprite: sprite,
+                types: data.types.map(t => capitalize(t.type.name)),
+                height: data.height, // in decimeters
+                weight: data.weight  // in hectograms
             };
         }
     }
@@ -55,6 +81,8 @@ async function initGame() {
     await preloadPokemonNames();
     loadNewPokemon();
 }
+
+
 
 // ---------------------------------------------
 // LOAD NEW ROUND
@@ -72,12 +100,16 @@ async function loadNewPokemon() {
     currentPokemon = await getRandomPokemon();
     correctAnswer = currentPokemon.name;
 
+    addReferenceEntry(currentPokemon);
+
     pokemonImage.classList.add("silhouette");
     pokemonImage.innerHTML = `<img src="${currentPokemon.sprite}" height="250">`;
 
     generateChoices();
     startTimer();
 }
+
+
 
 // ---------------------------------------------
 // GENERATE CHOICES
@@ -222,3 +254,5 @@ if (selected === correctAnswer) {
         loadNewPokemon();
     }, 1200);
 }
+
+
