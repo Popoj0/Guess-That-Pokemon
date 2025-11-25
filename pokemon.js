@@ -135,7 +135,7 @@ function handleGuess(selected) {
         pokemonImage.classList.remove("silhouette");
         highlightButton(selected, "correct");
         correctSound.play();
-        score++;
+        score+=1;
         updateScore();
 
         setTimeout(() => {
